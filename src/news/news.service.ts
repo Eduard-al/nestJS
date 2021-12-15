@@ -1,23 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CountQueuingStrategy } from 'node:stream/web';
+import {Comment} from './comments/comments.service';
 
 export interface News{
     id: number;
     title: string;
     description: string;
-    autor: string;
+    author: string;
     countView?: number;
+    comments?: Comment[];
+    cover?: string
 }
 
 export interface NewsChange{
     
     title: string;
     description: string;
-    autor: string;
+    author: string;
     countView?: number;
+    
 }
 
-function getRandomInt(min:number, max:number): number {
+export function getRandomInt(min: number = 1, max: number= 9999): number {
     min = Math.ceil(min)
     max = Math.floor(max)
     return Math.floor( Math.random()*(max-min))+min
@@ -31,8 +35,10 @@ export class NewsService {
             id:1,
             title:'первая новость',
             description:'Текст первой новости',
-            autor:'Eduard',
-            countView:5
+            author:'Eduard',
+            countView:5,
+            cover:'https://ic.pics.livejournal.com/tiina/12725143/26436629/26436629_original.jpg'
+            
         },
     ]
 
