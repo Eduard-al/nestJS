@@ -1,15 +1,24 @@
-import { Controller, Get, Param, Post, Body, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CommentsService } from './comments/comments.service';
 import { News, NewsService,NewsChange } from './news.service';
 import { renderNewsAll } from '../views/news/news-all';
 import { renderTemplate } from '../views/template'
 import { renderNewsDetail } from '../views/news/news-detail'
+import { CreateNewsDto } from './dtos/create-news-dto';
+import { EditNewsDto } from './dtos/edit-news-dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { HelperFileLoader } from 'src/utils/HelperFileLoader';
+
+const PATH_NEWS = '/news-static/'
+HelperFileLoader.path = PATH_NEWS
 
 @Controller('news')
 export class NewsController {
-    constructor(private readonly newsService: NewsService, private readonly commentsService: CommentsService){
-
-    }
+    constructor(
+        private readonly newsService: NewsService, 
+        private readonly commentsService: CommentsService
+        ){}
        
     @Get('/api/detail/:id')
         get(@Param('id')id: string): News{
@@ -53,18 +62,34 @@ export class NewsController {
     
 
     @Post('/api')
-    create(@Body()news: News): News{        
-        return this.newsService.create(news)
-    }
+    @UseInterceptors(
+        FileInterceptor('cover',{
+            storage: diskStorage({
+                destination: HelperFileLoader.destinationPath, 
+                filename: HelperFileLoader.customFileName
+            })
+        })
+    )
+    create(
+        @Body() news: CreateNewsDto,
+        @UploadedFile() cover: Express.Multer.File
+        ): News{  
+            if (cover?.filename){
+                news.cover = PATH_NEWS + cover.filename
+            } 
+            
+            news.cover = PATH_NEWS + cover.filename
+            return this.newsService.create(news)
+        }
 
-    @Delete('/api/detail/:id')
+    @Delete('/api/:id')
     remove(@Param('id')id: string): string{
         const idInt = parseInt(id)
         const isRemoved = this.newsService.remove(idInt)
         return isRemoved ? 'новость удалена' : 'передан неверный идентификатор'
     }
-    @Put('/api/detail/:id')
-    change(@Param('id')id: string, @Body()news: NewsChange): string{
+    @Put('/api/:id')
+    change(@Param('id')id: string, @Body()news: EditNewsDto): string{
         const idInt = parseInt(id)
 
         const isChange=this.newsService.change(idInt,news)

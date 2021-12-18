@@ -1,8 +1,8 @@
 import { News } from "src/news/news.service";
-import { Comment } from "src/news/comments/comments.service";
+import { CreateCommentsDto } from "src/news/comments/dtos/create-comment-dto";
 
 
-export function renderNewsDetail(news: News, comment:Comment[]):string {
+export function renderNewsDetail(news: News, comment:CreateCommentsDto[]):string {
     
     return `
     <div class="conteiner text-center">
@@ -17,17 +17,21 @@ export function renderNewsDetail(news: News, comment:Comment[]):string {
     `
 }
 
-function renderNewsComments(comments: Comment[]):string {
+function renderNewsComments(comments: CreateCommentsDto[]):string {
     let html=''
     for (const comment of comments) {
         html+=`
-        <div style="margin:10px">
-            <div style="height: 70px; display: flex;">
-                <div style="height: 50px ;width: 50px; background:#adb5bd">
+        <div style="margin:25px">
+            <div style=" display: flex;">
+            ${comment?.avatar
+                ?`<img src="${comment.avatar}" style="height: 50px ;width: 50px;border-radius: 50%; background:#adb5bd; overfiow: hidden ;object-fit: cover;"`
+                :'<div style="height: 50px ;width: 50px; background:#adb5bd">'}
+                
+                
                 </div>
-                <div>${comment.author}</div>
+                <div style="font-size: 20px; margin: 10px;">${comment.author}</div>
             </div>
-            <div style="text-align: left">${comment.message}</div>
+            <div style="text-align: left; font-size: 14px">${comment.message}</div>
         </div>
         
         `

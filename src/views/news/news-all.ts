@@ -30,4 +30,6 @@ function renderNewsBlock(news: News) {
         </div>
     </div>
     `
+
+   
 }
